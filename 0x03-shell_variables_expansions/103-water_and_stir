@@ -1,0 +1,63 @@
+#!/bin/bash
+# 103-water_and_stir
+
+WATER_BASE="water"
+STIR_BASE="stir"
+BESTCHOL_BASE="bestchol"
+
+# Function to convert from custom base to decimal
+to_decimal() {
+    local number=$1
+    local base=$2
+    local base_len=${#base}
+    local decimal=0
+    local i char val
+
+    for (( i=0; i<${#number}; i++ )); do
+        char=${number:i:1}
+        val=$(expr index "$base" "$char")
+        val=$((val - 1))  # expr index is 1-based, subtract 1 for zero-based
+        decimal=$((decimal * base_len + val))
+    done
+
+    echo "$decimal"
+}
+
+# Function to convert decimal to custom base
+from_decimal() {
+    local decimal=$1
+    local base=$2
+    local base_len=${#base}
+    local result=""
+
+    # Handle zero case
+    if [ "$decimal" -eq 0 ]; then
+        echo "${base:0:1}"
+        return
+    fi
+
+    while [ "$decimal" -gt 0 ]; do
+        rem=$((decimal % base_len))
+        decimal=$((decimal / base_len))
+        result="${base:rem:1}$result"
+    done
+
+    echo "$result"
+}
+
+# Read environment variables
+water_num="$WATER"
+stir_num="$STIR"
+
+# Convert both to decimal
+water_dec=$(to_decimal "$water_num" "$WATER_BASE")
+stir_dec=$(to_decimal "$stir_num" "$STIR_BASE")
+
+# Add them
+sum=$((water_dec + stir_dec))
+
+# Convert sum to bestchol base
+result=$(from_decimal "$sum" "$BESTCHOL_BASE")
+
+# Print result
+echo "$result"
